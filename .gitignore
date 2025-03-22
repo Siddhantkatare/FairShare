@@ -1,0 +1,15 @@
+# Ignore node_modules in both frontend and backend
+fair_share_frontend/node_modules/
+fair_share_backend/node_modules/
+
+# Ignore environment files
+fair_share_frontend/.env
+fair_share_backend/.env
+
+# Ignore build files (optional)
+fair_share_frontend/dist/
+fair_share_backend/dist/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
