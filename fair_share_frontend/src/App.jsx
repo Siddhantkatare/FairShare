@@ -14,8 +14,13 @@ function App() {
       id: Math.random().toString(36).substr(2, 9),
     };
     setMembers([...members, member]);
-    setShowAddMemberModal(false);
-    setShowAddExpenseModal(true);
+  };
+
+  const handleContinueToExpense = () => {
+    if (members.length >= 2) {
+      setShowAddMemberModal(false);
+      setShowAddExpenseModal(true);
+    }
   };
 
   const handleAddExpense = (newExpense) => {
@@ -29,11 +34,7 @@ function App() {
   };
 
   const handleAddExpenseClick = () => {
-    if (members.length === 0) {
-      setShowAddMemberModal(true);
-    } else {
-      setShowAddExpenseModal(true);
-    }
+    setShowAddMemberModal(true);
   };
 
   const expenseRows = expenses.map((expense) => {
@@ -122,6 +123,7 @@ function App() {
         isOpen={showAddMemberModal}
         onClose={() => setShowAddMemberModal(false)}
         onAddMember={handleAddMember}
+        onContinue={handleContinueToExpense}
         members={members}
       />
 

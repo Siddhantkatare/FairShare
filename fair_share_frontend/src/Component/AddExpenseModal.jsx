@@ -133,4 +133,4 @@ export const AddExpenseModal = ({
       </form>
     </Modal>
   );
-};
+};  
