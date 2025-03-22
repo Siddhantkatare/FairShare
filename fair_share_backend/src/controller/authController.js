@@ -8,6 +8,7 @@ export const authJWT = (request, response, next) => {
         const authHeader = request.headers.authorization;
 
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            console.error("Token is required or Invalid Token")
             return response.status(StatusCodes.UNAUTHORIZED).json({ message: "Invalid token", success: false });
         }
         const token = authHeader.split(" ")[1];
@@ -16,18 +17,14 @@ export const authJWT = (request, response, next) => {
         const payload = jwt.decode(token)
         // console.log("payload ==> ", payload);
         if (!payload) {
-            console.log("Invalid Token")
+            console.error("Invalid Token")
             return response.status(StatusCodes.UNAUTHORIZED).json({ message: "Invalid token", success: false });
         }
 
-        let secrateKey = "";
-        if (payload.roleId === ROLE_ADMIN) secrateKey = ADMIN_SECRATE_KEY
-        if (payload.roleId === ROLE_EMPLOYEE) secrateKey = EMPLOYEE_SECRATE_KEY
-        if (payload.roleId === ROLE_USER) secrateKey = USER_SECRATE_KEY
-        if (payload.roleId === ROLE_ORGANIZATION) secrateKey = ORGANIZATION_SECRATE_KEY
+        let secrateKey = USER_SECRATE_KEY
 
         if (!secrateKey) {
-            console.log("invalid roleId")
+            console.error("invalid roleId")
             return response.status(StatusCodes.UNAUTHORIZED).json({ message: "Invalid token", success: false });
         }
 

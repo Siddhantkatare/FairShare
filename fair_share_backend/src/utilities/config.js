@@ -34,17 +34,12 @@ export const Messages = {
     CREATION_FAILED: "Creation Failed!",
     UPDATION_FAILED: "Updation Failed!",
     SOMETHING_WENT_WRONG: "Something Went Wrong!",
-    ERROR_OCCURRED: "Error Occurred in ",
     UNEXPECTED_ERROR: "Unexpected Error Occurred!",
     INVALID_OR_EXPIRED_TOKEN: "Invalid or Expired Token!",
     PAYLOAD_MISSING_OR_INVALID: "User Payload is Missing or Invalid!",
     MISSING_OR_INVALID: "is Missing or Invalid!",
     THIS_NOT_FOUND: "Not Found or Inactive!",
     USER_NOT_FOUND: "User Not Found or Inactive!",
-    ROLE_NOT_RECOGNIZED: "Role Not Recognized!",
-    MISSING_REQUIRED_FIELD: "Missing Required Fields for Creation",
-    SUBSCRIPTION_NOT_FOUND: "SUBSCRIPTION NOT FOUND",
-    NO_CONTENT: "NO CONTENT FOUND",
     DATA_NOT_FOUND: "Data not found",
 };
 
