@@ -43,7 +43,7 @@ export const authJWT = (request, response, next) => {
 export const signUpController = async (request, response) => {
     try {
         const { name, email, contactNumber, password } = request.body;
-
+        console.log("request.body", request.body);
         const existingUser = await userModel.findOne({ email: email });
         if (existingUser) {
             console.log("Email already exists")

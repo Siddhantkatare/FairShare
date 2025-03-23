@@ -20,20 +20,15 @@ const app = express();
 // });
 
 app.use(cors({
-    origin: ALLOWED_ORIGIN, // allow your frontend URL
-    methods: 'GET,POST,PUT,DELETE', // add other methods as needed
-    credentials: true // if you need to support credentials like cookies
+    origin: ALLOWED_ORIGIN,
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true
 }));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use("/api", router);
-// app.use("/api/user", userRouter);
-// app.use("/api", authRouter);
-// app.use("/api/admin", adminRouter);
-// app.use("/api/organization", organizationRouter);
-// app.use("/api/employee", employeeRouter);
 
 // io.on("connection", (socket) => {
 //     console.log("A User Connected:", socket.id);

@@ -14,7 +14,7 @@ export const AppLayout = ({ children }) => {
   return (
     <div className="app-container flex min-h-screen">
       {/* Overlay for mobile when sidebar is open */}
-      {isMobile && sidebarOpen && (
+      {sidebarOpen && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

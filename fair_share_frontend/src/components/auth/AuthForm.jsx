@@ -4,36 +4,56 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { toast } from "react-toastify";
+import { ToastProperty } from "../../lib/config";
+import { login, signUp } from "../../api/authApi";
 
 export const AuthForm = () => {
   const [mode, setMode] = useState("signin");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const toggleMode = () => {
-    setMode(mode === "signin" ? "signup" : "signin");
-  };
+  const validationSchema = Yup.object({
+    name: mode === "signup" ? Yup.string().required("Name is required") : Yup.string(),
+    contactNumber: mode === "signup" ? Yup.string().required("Contact Number is required") : Yup.string(),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    password: Yup.string()
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      // Simulate authentication
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Success, show toast and redirect
-      toast.success(mode === "signin" ? "Welcome back!" : "Account created successfully!");
-      navigate("/dashboard");
-    } catch (error) {
-      toast.error("Authentication failed. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const formik = useFormik({
+    initialValues: { name: "", email: "", password: "", contactNumber: "" },
+    validationSchema,
+    onSubmit: async (values) => {
+      try {
+        let response;
+        if (mode === "signin") {
+          response = await login(values);
+          if (response.success) {
+            formik.resetForm();
+            localStorage.setItem('loginData', JSON.stringify(response.userData));
+            toast.success(response.message, ToastProperty)
+            navigate("/dashboard");
+          } else {
+            toast.error(response.message, ToastProperty)
+          }
+        } else {
+          response = await signUp(values);
+          if (response.success) {
+            formik.resetForm();
+            toast.success(response.message, ToastProperty)
+            setMode("signin")
+          } else {
+            toast.error(response.message, ToastProperty)
+          }
+        }
+      } catch (error) {
+        console.log("Error in signUp/login");
+      }
+    },
+  });
 
   return (
     <motion.div
@@ -63,27 +83,50 @@ export const AuthForm = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Form using Formik */}
+        <form onSubmit={formik.handleSubmit} className="space-y-4">
           <AnimatePresence mode="wait">
             {mode === "signup" && (
-              <motion.div
-                key="name-field"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className="space-y-2"
-              >
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="focus-ring"
-                />
-              </motion.div>
+              <>
+                <motion.div
+                  key="name-field"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-2"
+                >
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    placeholder="Enter your name"
+                    {...formik.getFieldProps("name")}
+                    className="focus-ring"
+                  />
+                  {formik.touched.name && formik.errors.name && (
+                    <p className="text-red-500 text-sm">{formik.errors.name}</p>
+                  )}
+                </motion.div>
+                <motion.div
+                  key="contact-field"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-2"
+                >
+                  <Label htmlFor="contactNumber">Contact Number</Label>
+                  <Input
+                    id="contactNumber"
+                    placeholder="Enter Contact Number"
+                    {...formik.getFieldProps("contactNumber")}
+                    className="focus-ring"
+                  />
+                  {formik.touched.contactNumber && formik.errors.contactNumber && (
+                    <p className="text-red-500 text-sm">{formik.errors.contactNumber}</p>
+                  )}
+                </motion.div>
+              </>
             )}
           </AnimatePresence>
 
@@ -92,12 +135,13 @@ export const AuthForm = () => {
             <Input
               id="email"
               type="email"
-              placeholder="hello@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              placeholder="Enter your email"
+              {...formik.getFieldProps("email")}
               className="focus-ring"
             />
+            {formik.touched.email && formik.errors.email && (
+              <p className="text-red-500 text-sm">{formik.errors.email}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -112,22 +156,24 @@ export const AuthForm = () => {
             <Input
               id="password"
               type="password"
-              placeholder={mode === "signin" ? "••••••••" : "Create a password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              placeholder={mode === "signin" ? "Enter Password" : "Create a password"}
+              {...formik.getFieldProps("password")}
               className="focus-ring"
             />
+            {formik.touched.password && formik.errors.password && (
+              <p className="text-red-500 text-sm">{formik.errors.password}</p>
+            )}
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading}
-          >
-            {isLoading ? (
+          <Button type="submit" className="w-full" disabled={formik.isSubmitting}>
+            {formik.isSubmitting ? (
               <span className="flex items-center">
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-4 w-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -143,7 +189,12 @@ export const AuthForm = () => {
           <span className="text-muted-foreground">
             {mode === "signin" ? "Don't have an account? " : "Already have an account? "}
           </span>
-          <Button type="button" variant="link" onClick={toggleMode} className="p-0 h-auto font-normal">
+          <Button
+            type="button"
+            variant="link"
+            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+            className="p-0 h-auto font-normal"
+          >
             {mode === "signin" ? "Sign up" : "Sign in"}
           </Button>
         </div>
@@ -151,4 +202,3 @@ export const AuthForm = () => {
     </motion.div>
   );
 };
-

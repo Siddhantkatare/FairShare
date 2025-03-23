@@ -1,37 +1,48 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { lazy, Suspense } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Suspense } from "react";
+import { AnimatePresence } from "framer-motion";
 
 // Pages
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Groups from "./pages/Groups";
-// import AddExpense from "./pages/AddExpense";
 import Settle from "./pages/Settle";
 import { AddExpenseForm } from "./components/expenses/AddExpenseForm";
+import { ToastContainer } from "react-toastify";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
-// Loading spinner
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center">
     <div className="h-8 w-8 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
   </div>
 );
 
-const App = () => (
-  <BrowserRouter>
+const AnimatedRoutes = () => {
+  const location = useLocation(); // Ensure each route has a unique key
+
+  return (
     <AnimatePresence mode="wait">
-      <Suspense fallback={<LoadingSpinner />}>
-        <Routes>
-          <Route path="/" element={<Index />} />
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Index />} />
+        <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/groups" element={<Groups />} />
           <Route path="/add-expense" element={<AddExpenseForm />} />
           <Route path="/settle" element={<Settle />} />
           <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
+        </Route>
+      </Routes>
     </AnimatePresence>
+  );
+};
+
+const App = () => (
+  <BrowserRouter>
+    <ToastContainer />
+    <Suspense fallback={<LoadingSpinner />}>
+      <AnimatedRoutes />
+    </Suspense>
   </BrowserRouter>
 );
 
