@@ -1,14 +1,28 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { PlusCircle, Trash2 } from "lucide-react";
+import { loggedData } from "../../lib/config";
 
 const ParticipantsList = ({ participants, setParticipants }) => {
-  // Add participant
+  const loginUser = loggedData();
+
+  useEffect(() => {
+    if (loginUser) {
+      setParticipants([
+        {
+          id: "1",
+          name: loginUser.name,
+          email: loginUser.email,
+        },
+        { id: "2", name: "", email: "" },
+      ]);
+    }
+  }, [setParticipants]);
+
   const addParticipant = () => {
     setParticipants([
       ...participants,
@@ -16,7 +30,6 @@ const ParticipantsList = ({ participants, setParticipants }) => {
     ]);
   };
 
-  // Update participant
   const updateParticipant = (id, field, value) => {
     setParticipants(
       participants.map((p) =>
@@ -25,7 +38,6 @@ const ParticipantsList = ({ participants, setParticipants }) => {
     );
   };
 
-  // Remove participant
   const removeParticipant = (id) => {
     if (participants.length <= 2) {
       toast.error("At least 2 participants are required");
@@ -61,6 +73,7 @@ const ParticipantsList = ({ participants, setParticipants }) => {
               }
               placeholder="Enter name"
               className="focus-ring"
+              disabled={participant.id === "1"}
             />
           </div>
           <div className="space-y-2">
@@ -75,17 +88,20 @@ const ParticipantsList = ({ participants, setParticipants }) => {
                 }
                 placeholder="Enter email"
                 className="focus-ring"
+                disabled={participant.id === "1"}
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => removeParticipant(participant.id)}
-                className="ml-2 flex-shrink-0 text-muted-foreground hover:text-destructive"
-                disabled={participants.length <= 2}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              {participant.id !== "1" && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeParticipant(participant.id)}
+                  className="ml-2 flex-shrink-0 text-muted-foreground hover:text-destructive"
+                  disabled={participants.length <= 2}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
         </motion.div>

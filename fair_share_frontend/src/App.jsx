@@ -11,6 +11,8 @@ import Settle from "./pages/Settle";
 import { AddExpenseForm } from "./components/expenses/AddExpenseForm";
 import { ToastContainer } from "react-toastify";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import Home from "./pages/Home";
+import About from "./pages/About";
 
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -24,6 +26,8 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        <Route path="/home" element={<Home />} />
+        <Route path="/about" element={<About />} />
         <Route path="/" element={<Index />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />

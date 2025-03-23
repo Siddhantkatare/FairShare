@@ -17,7 +17,7 @@ export const SettlementList = () => {
   const loginUser = loggedData(); // Logged-in user
   const [activeTab, setActiveTab] = useState("toPay");
   const [settlementData, setSettlementData] = useState([]);
-console.log(expenses)
+
   const getExpenses = async () => {
     const response = await getAllExpense(loginUser.token);
     if (response.success) {
@@ -50,7 +50,7 @@ console.log(expenses)
               id: `${expense.id}-${participant.email}`,
               description: expense.description,
               amount: participant.share,
-              from: participant.name, // The one who owes money
+              from: participant.email, // The one who owes money
               to: "You",
               date: expense.date,
               status: participant.paid ? "paid" : "pending",
@@ -64,7 +64,7 @@ console.log(expenses)
               description: expense.description,
               amount: participant.share,
               from: "You",
-              to: expense.paidBy.name, // The payer
+              to: expense.paidBy.email, // The payer
               date: expense.date,
               status: "pending",
             });
@@ -81,14 +81,13 @@ console.log(expenses)
   const paid = settlementData.filter((s) => s.status === "paid");
 
   const handlePaySettlement = (settlementId) => {
-    // markAsPaid(settlementId);
-    toast.success("Payment marked as completed!");
 
     setSettlementData((prevData) =>
       prevData.map((item) =>
         item.id === settlementId ? { ...item, status: "paid" } : item
       )
     );
+    toast.success("Payment marked as completed!"); 
   };
 
   return (

@@ -38,8 +38,8 @@ export const validateExpenseDetails = (
         (sum, split) => sum + Number(split.value),
         0
       );
-      if (Math.abs(totalPercentage - 100) > 0.01) {
-        toast.error("Percentages must add up to 100%");
+      if (totalPercentage !== 100) {
+        toast.error("Percentages must add up to exactly 100%");
         return false;
       }
     } else if (splitType === "Manual") {
@@ -75,8 +75,10 @@ export const calculateParticipantShares = (
   } else if (splitType === "Percentage") {
     participantShares = participants.map((p) => {
       const split = customSplits.find((s) => s.id === p.id);
-      const share = (parseFloat(split?.value || 0) / 100) * parseFloat(amount);
-      return { ...p, amount: share };
+      return {
+        ...p,
+        amount: parseFloat(split?.value || 0), // Send percentage value (e.g., 20, 80)
+      };
     });
   } else if (splitType === "Manual") {
     participantShares = participants.map((p) => {
