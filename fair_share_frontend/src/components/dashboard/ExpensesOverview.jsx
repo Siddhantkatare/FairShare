@@ -1,28 +1,44 @@
 import { ExpenseCard } from "./ExpenseCard";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, Wallet } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppContext } from "@/context/AppContext";
+import { loggedData, ToastProperty } from "../../lib/config";
+import { getAllExpense } from "../../api/expenseApi";
 
 export const ExpensesOverview = () => {
+  const [expenses, setExpenses] = useState([])
+  const loginData = loggedData();
   const navigate = useNavigate();
-  const { expenses } = useAppContext();
-  
+
   const handleAddExpense = () => {
     navigate("/add-expense");
   };
-  
+
   const handleSettle = () => {
     navigate("/settle");
   };
+
+  const getExpenses = async () => {
+    const response = await getAllExpense(loginData.token);
+    if (response.success) {
+      setExpenses(response.allExpenses)
+    } else {
+      toast.error(response.data.message, ToastProperty)
+    }
+  }
+
+  useEffect(() => {
+    getExpenses();
+  }, [])
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Recent Expenses</h2>
         <div className="flex gap-2">
-          <Button 
-            onClick={handleSettle} 
+          <Button
+            onClick={handleSettle}
             variant="outline"
             className="gap-1"
           >

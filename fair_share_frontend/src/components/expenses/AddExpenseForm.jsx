@@ -1,29 +1,30 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { useAppContext } from "@/context/AppContext";
 import ParticipantsList from "./ParticipantsList";
 import ExpenseDetailsForm from "./ExpenseDetailsForm";
 import { validateParticipants, validateExpenseDetails, calculateParticipantShares } from "./expenseUtils";
+import { toast } from "react-toastify";
+import { addExpense } from "../../api/expenseApi";
+import { loggedData, ToastProperty } from "../../lib/config";
 
 export const AddExpenseForm = () => {
+  const loginData = loggedData();
   const navigate = useNavigate();
-  const { addExpense } = useAppContext();
   const [step, setStep] = useState(1);
   const [participants, setParticipants] = useState([
     { id: "1", name: "", email: "" },
     { id: "2", name: "", email: "" },
   ]);
-  
+
   // Step 2 state
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [paidBy, setPaidBy] = useState("");
   const [category, setCategory] = useState("");
-  const [splitType, setSplitType] = useState("equal");
+  const [splitType, setSplitType] = useState("Equal");
   const [customSplits, setCustomSplits] = useState([]);
 
   // Handle next step
@@ -33,16 +34,14 @@ export const AddExpenseForm = () => {
       if (!validateParticipants(participants)) {
         return;
       }
-      
+
       // Initialize custom splits for participants
-      const initialSplits = participants.map(p => ({
+      const initialSplits = participants.map((p) => ({
         id: p.id,
-        value: splitType === "equal" 
-          ? (100 / participants.length).toFixed(2) 
-          : "",
+        value: splitType === "Equal" ? (100 / participants.length).toFixed(2) : "",
       }));
       setCustomSplits(initialSplits);
-      
+
       // Move to next step
       setStep(2);
     }
@@ -60,19 +59,19 @@ export const AddExpenseForm = () => {
   // Handle split type change
   const handleSplitTypeChange = (value) => {
     setSplitType(value);
-    
+
     // Reset custom splits based on the new split type
-    if (value === "equal") {
+    if (value === "Equal") {
       const equalShare = (100 / participants.length).toFixed(2);
       setCustomSplits(
-        participants.map(p => ({
+        participants.map((p) => ({
           id: p.id,
           value: equalShare,
         }))
       );
     } else {
       setCustomSplits(
-        participants.map(p => ({
+        participants.map((p) => ({
           id: p.id,
           value: "",
         }))
@@ -83,36 +82,36 @@ export const AddExpenseForm = () => {
   // Update custom split
   const updateCustomSplit = (id, value) => {
     setCustomSplits(
-      customSplits.map(split => 
+      customSplits.map((split) =>
         split.id === id ? { ...split, value } : split
       )
     );
   };
 
   // Handle submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate expense details
     if (!validateExpenseDetails(description, amount, paidBy, category, splitType, customSplits)) {
       return;
     }
-    
-    // Get the payer name
-    const payer = participants.find(p => p.id === paidBy);
+
+    // Get the payer
+    const payer = participants.find((p) => p.id === paidBy);
     if (!payer) {
       toast.error("Please select who paid for the expense");
       return;
     }
-    
+
     // Calculate participant shares
     const participantShares = calculateParticipantShares(
-      participants, 
-      splitType, 
-      amount, 
+      participants,
+      splitType,
+      amount,
       customSplits
     );
-    
+
     // Create expense object
     const newExpense = {
       id: Date.now().toString(),
@@ -120,17 +119,28 @@ export const AddExpenseForm = () => {
       amount: parseFloat(amount),
       date: new Date(),
       category,
-      paidBy: payer.name,
+      paidBy: {
+        name: payer.name,
+        email: payer.email,
+      },
+      participants: participantShares.map((p) => ({
+        name: p.name,
+        email: p.email,
+        share: p.amount,
+        paid: p.email === payer.email,
+      })),
       splitType,
-      participants: participantShares
     };
-    
-    // Add expense to context
-    addExpense(newExpense);
-    
-    // Submit and navigate back to dashboard
-    toast.success("Expense added successfully!");
-    navigate("/dashboard");
+
+    console.log("newExpense", newExpense);
+    const response = await addExpense(loginData.token, newExpense)
+
+    if (response.success) {
+      toast.success(response.message, ToastProperty)
+      navigate("/dashboard")
+    } else {
+      toast.error(response.message, ToastProperty)
+    }
   };
 
   return (
@@ -139,13 +149,13 @@ export const AddExpenseForm = () => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3 }}
-      className="space-y-6"
+      className="space-y-6 px-40 py-10"
     >
+      <Button variant="ghost" onClick={handleBack} className="mr-4">
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back
+      </Button>
       <div className="flex items-center mb-6">
-        <Button variant="ghost" onClick={handleBack} className="mr-4">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
         <div>
           <h1 className="text-2xl font-semibold">Add New Expense</h1>
           <p className="text-muted-foreground text-sm">
@@ -153,7 +163,6 @@ export const AddExpenseForm = () => {
           </p>
         </div>
       </div>
-
       <form onSubmit={handleSubmit} className="space-y-6">
         <AnimatePresence mode="wait">
           {step === 1 && (
@@ -165,17 +174,12 @@ export const AddExpenseForm = () => {
               transition={{ duration: 0.2 }}
               className="space-y-6"
             >
-              <ParticipantsList 
-                participants={participants} 
-                setParticipants={setParticipants} 
+              <ParticipantsList
+                participants={participants}
+                setParticipants={setParticipants}
               />
-
               <div className="pt-4">
-                <Button
-                  type="button"
-                  onClick={handleNextStep}
-                  className="w-full"
-                >
+                <Button type="button" onClick={handleNextStep} className="w-full">
                   Continue
                 </Button>
               </div>
@@ -206,7 +210,6 @@ export const AddExpenseForm = () => {
                 customSplits={customSplits}
                 updateCustomSplit={updateCustomSplit}
               />
-
               <div className="pt-4">
                 <Button type="submit" className="w-full">
                   Add Expense

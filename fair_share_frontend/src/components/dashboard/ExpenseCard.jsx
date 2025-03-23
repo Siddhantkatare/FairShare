@@ -2,33 +2,66 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { UtensilsCrossed, Plane, Home, ShoppingCart, Coffee, UserPlus, DollarSign } from "lucide-react";
+import {
+  UtensilsCrossed,
+  Plane,
+  Home,
+  ShoppingCart,
+  Coffee,
+  FileText,
+  Tv,
+  Briefcase,
+  Phone,
+  Wallet,
+  CreditCard,
+  DollarSign,
+  BookOpen,
+  UserPlus,
+} from "lucide-react";
 import { formatCurrency } from "@/lib/formatCurrency";
 
 export const ExpenseCard = ({ expense, index }) => {
   const getCategoryIcon = () => {
     switch (expense.category) {
-      case "food":
+      case "Food":
         return <UtensilsCrossed className="h-4 w-4" />;
-      case "travel":
+      case "Travel":
         return <Plane className="h-4 w-4" />;
-      case "rent":
+      case "Rent":
         return <Home className="h-4 w-4" />;
-      case "shopping":
+      case "Shopping":
         return <ShoppingCart className="h-4 w-4" />;
-      default:
+      case "Other":
         return <Coffee className="h-4 w-4" />;
+      case "Utilities":
+        return <FileText className="h-4 w-4" />;
+      case "Entertainment":
+        return <Tv className="h-4 w-4" />;
+      case "Business":
+        return <Briefcase className="h-4 w-4" />;
+      case "Recharge":
+        return <Phone className="h-4 w-4" />;
+      case "Billing":
+        return <Wallet className="h-4 w-4" />;
+      case "Subscription":
+        return <CreditCard className="h-4 w-4" />;
+      case "Fee":
+        return <DollarSign className="h-4 w-4" />;
+      default:
+        return <BookOpen className="h-4 w-4" />;
     }
   };
 
   const getSplitTypeLabel = () => {
     switch (expense.splitType) {
-      case "equal":
+      case "Equal":
         return "Split equally";
-      case "percentage":
+      case "Percentage":
         return "Split by percentage";
-      case "exact":
-        return "Split by exact amount";
+      case "Manual":
+        return "Split by manual amount";
+      default:
+        return "Unknown split type";
     }
   };
 
@@ -43,7 +76,7 @@ export const ExpenseCard = ({ expense, index }) => {
           <div>
             <h3 className="font-medium">{expense.description}</h3>
             <p className="text-sm text-muted-foreground">
-              {format(expense.date, "MMM d, yyyy")}
+              {format(new Date(expense.date), "MMM d, yyyy")}
             </p>
           </div>
           <div className="flex flex-col items-end">
@@ -63,10 +96,10 @@ export const ExpenseCard = ({ expense, index }) => {
           <div className="flex items-center text-sm text-muted-foreground">
             <DollarSign className="h-4 w-4 mr-1" />
             <span>
-              <span className="font-medium text-foreground">{expense.paidBy}</span> paid
+              <span className="font-medium text-foreground">{expense.paidBy.email}</span> paid
             </span>
           </div>
-          
+
           <div className="flex items-center text-sm text-muted-foreground">
             <UserPlus className="h-4 w-4 mr-1" />
             <span>
@@ -78,9 +111,9 @@ export const ExpenseCard = ({ expense, index }) => {
         <div className="mt-4 pt-4 border-t">
           <div className="grid grid-cols-2 gap-2">
             {expense.participants.map((participant) => (
-              <div key={participant.name} className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{participant.name}</span>
-                <span className="font-medium">{formatCurrency(participant.amount)}</span>
+              <div key={participant.email} className="flex justify-between text-sm">
+                <span className="text-muted-foreground">{participant.email}</span>
+                <span className="font-medium">{formatCurrency(participant.share)}</span>
               </div>
             ))}
           </div>

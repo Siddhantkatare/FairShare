@@ -48,7 +48,7 @@ export const AppLayout = ({ children }) => {
             className="mr-4"
             aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
           >
-            {sidebarOpen && !isMobile ? (
+            {sidebarOpen ? (
               <XIcon className="h-5 w-5" />
             ) : (
               <MenuIcon className="h-5 w-5" />

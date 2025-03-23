@@ -4,87 +4,96 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeftRight, Check, Clock, AlertCircle } from "lucide-react";
+import { ArrowLeftRight, Check, Clock } from "lucide-react";
 import { formatCurrency } from "@/lib/formatCurrency";
-import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
+import { loggedData } from "../../lib/config";
+import { getAllExpense } from "../../api/expenseApi";
 
 export const SettlementList = () => {
-  const { settlements, markAsPaid, expenses, groups } = useAppContext();
+  const [expenses, setExpenses] = useState([])
+  const loginUser = loggedData(); // Logged-in user
   const [activeTab, setActiveTab] = useState("toPay");
-  const [isLoading, setIsLoading] = useState(true);
   const [settlementData, setSettlementData] = useState([]);
-  
-  useEffect(() => {
-    if (settlements && settlements.length > 0) {
-      setSettlementData(settlements);
-      setIsLoading(false);
+console.log(expenses)
+  const getExpenses = async () => {
+    const response = await getAllExpense(loginUser.token);
+    if (response.success) {
+      setExpenses(response.allExpenses)
     } else {
-      const placeholderSettlements = [
-        {
-          id: "s1",
-          description: "Dinner at Italian Restaurant",
-          amount: 350,
-          from: "You",
-          to: "Alex",
-          date: new Date().toISOString(),
-          status: "pending"
-        },
-        {
-          id: "s2",
-          description: "Movie tickets",
-          amount: 250,
-          from: "Sarah",
-          to: "You",
-          date: new Date(Date.now() - 86400000).toISOString(),
-          status: "pending"
-        },
-        {
-          id: "s3",
-          description: "Groceries",
-          amount: 650,
-          from: "You",
-          to: "Michael",
-          date: new Date(Date.now() - 172800000).toISOString(),
-          status: "paid"
-        }
-      ];
-      setSettlementData(placeholderSettlements);
+      toast.error(response.data.message, ToastProperty)
     }
-    setIsLoading(false);
-  }, [settlements]);
-  
-  const toPay = settlementData.filter(s => s.status === "pending" && s.from === "You");
-  const toReceive = settlementData.filter(s => s.status === "pending" && s.to === "You");
-  const paid = settlementData.filter(s => s.status === "paid");
+  }
+
+  useEffect(() => {
+    getExpenses();
+  }, [])
+
+  useEffect(() => {
+    if (!expenses || expenses.length === 0) return;
+
+    const settlements = [];
+
+    expenses.forEach((expense) => {
+      const paidBy = expense.paidBy.email;
+      const isLoggedUserPayer = paidBy === loginUser.email;
+
+      expense.participants.forEach((participant) => {
+        if (participant.email !== paidBy) {
+          const isLoggedUserParticipant = participant.email === loginUser.email;
+
+          // If the logged-in user paid, they should receive money from unpaid participants.
+          if (isLoggedUserPayer && !participant.paid) {
+            settlements.push({
+              id: `${expense.id}-${participant.email}`,
+              description: expense.description,
+              amount: participant.share,
+              from: participant.name, // The one who owes money
+              to: "You",
+              date: expense.date,
+              status: participant.paid ? "paid" : "pending",
+            });
+          }
+
+          // If the logged-in user is a participant who hasn't paid yet, they need to pay.
+          if (isLoggedUserParticipant && !participant.paid) {
+            settlements.push({
+              id: `${expense.id}-${participant.email}`,
+              description: expense.description,
+              amount: participant.share,
+              from: "You",
+              to: expense.paidBy.name, // The payer
+              date: expense.date,
+              status: "pending",
+            });
+          }
+        }
+      });
+    });
+
+    setSettlementData(settlements);
+  }, [expenses]);
+
+  const toPay = settlementData.filter((s) => s.status === "pending" && s.from === "You");
+  const toReceive = settlementData.filter((s) => s.status === "pending" && s.to === "You");
+  const paid = settlementData.filter((s) => s.status === "paid");
 
   const handlePaySettlement = (settlementId) => {
-    markAsPaid(settlementId);
+    // markAsPaid(settlementId);
     toast.success("Payment marked as completed!");
-    
-    setSettlementData(prevData => 
-      prevData.map(item => 
-        item.id === settlementId 
-          ? {...item, status: "paid"} 
-          : item
+
+    setSettlementData((prevData) =>
+      prevData.map((item) =>
+        item.id === settlementId ? { ...item, status: "paid" } : item
       )
     );
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="h-8 w-8 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold">Settlements</h2>
-      </div>
+      <h2 className="text-2xl font-semibold">Settlements</h2>
 
       <Tabs defaultValue="toPay" className="w-full" onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3 mb-6">
@@ -92,166 +101,96 @@ export const SettlementList = () => {
           <TabsTrigger value="toReceive">To Receive</TabsTrigger>
           <TabsTrigger value="paid">Completed</TabsTrigger>
         </TabsList>
-        
+
+        {/* To Pay */}
         <TabsContent value="toPay" className="space-y-4">
           {toPay.length > 0 ? (
-            <div className="grid gap-4">
-              {toPay.map((settlement, index) => (
-                <motion.div
-                  key={settlement.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                >
-                  <Card className="p-5 hover:shadow-md transition-shadow duration-300 border">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium">{settlement.description}</h3>
-                          <Badge variant="outline" className="text-xs">
-                            Pending
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {format(new Date(settlement.date), "MMM d, yyyy")}
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <span className="font-semibold text-lg">
-                          {formatCurrency(settlement.amount)}
-                        </span>
-                      </div>
+            toPay.map((settlement, index) => (
+              <motion.div
+                key={settlement.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+              >
+                <Card className="p-5 hover:shadow-md border">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium">{settlement.description}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {format(new Date(settlement.date), "MMM d, yyyy")}
+                      </p>
                     </div>
+                    <span className="font-semibold text-lg">{formatCurrency(settlement.amount)}</span>
+                  </div>
 
-                    <div className="flex items-center text-sm text-muted-foreground mt-4">
-                      <ArrowLeftRight className="h-4 w-4 mr-2" />
-                      <span>
-                        <span className="font-medium text-foreground">{settlement.from}</span>
-                        {" "}needs to pay{" "}
-                        <span className="font-medium text-foreground">{settlement.to}</span>
-                      </span>
-                    </div>
+                  <div className="flex items-center text-sm text-muted-foreground mt-4">
+                    <ArrowLeftRight className="h-4 w-4 mr-2" />
+                    <span>
+                      <span className="font-medium text-foreground">{settlement.from}</span> owes{" "}
+                      <span className="font-medium text-foreground">{settlement.to}</span>
+                    </span>
+                  </div>
 
-                    <div className="mt-4 pt-4 border-t flex justify-end">
-                      <Button onClick={() => handlePaySettlement(settlement.id)} className="gap-1">
-                        <Check className="h-4 w-4" />
-                        Mark as Paid
-                      </Button>
-                    </div>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+                  <div className="mt-4 pt-4 border-t flex justify-end">
+                    <Button onClick={() => handlePaySettlement(settlement.id)} className="gap-1">
+                      <Check className="h-4 w-4" /> Mark as Paid
+                    </Button>
+                  </div>
+                </Card>
+              </motion.div>
+            ))
           ) : (
             <div className="text-center py-12 border rounded-lg bg-background">
               <h3 className="text-lg font-medium mb-2">No pending payments</h3>
-              <p className="text-muted-foreground">
-                You're all caught up! There are no pending payments to make.
-              </p>
+              <p className="text-muted-foreground">You're all caught up!</p>
             </div>
           )}
         </TabsContent>
-        
+
+        {/* To Receive */}
         <TabsContent value="toReceive" className="space-y-4">
           {toReceive.length > 0 ? (
-            <div className="grid gap-4">
-              {toReceive.map((settlement, index) => (
-                <motion.div
-                  key={settlement.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                >
-                  <Card className="p-5 hover:shadow-md transition-shadow duration-300 border">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium">{settlement.description}</h3>
-                          <Badge variant="secondary" className="text-xs">
-                            Pending
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {format(new Date(settlement.date), "MMM d, yyyy")}
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <span className="font-semibold text-lg">
-                          {formatCurrency(settlement.amount)}
-                        </span>
-                      </div>
+            toReceive.map((settlement, index) => (
+              <motion.div key={settlement.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                <Card className="p-5 hover:shadow-md border">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium">{settlement.description}</h3>
+                      <p className="text-sm text-muted-foreground">{format(new Date(settlement.date), "MMM d, yyyy")}</p>
                     </div>
+                    <span className="font-semibold text-lg">{formatCurrency(settlement.amount)}</span>
+                  </div>
 
-                    <div className="flex items-center text-sm text-muted-foreground mt-4">
-                      <Clock className="h-4 w-4 mr-2 text-amber-500" />
-                      <span>
-                        <span className="font-medium text-foreground">{settlement.from}</span>
-                        {" "}owes you a payment
-                      </span>
-                    </div>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+                  <div className="flex items-center text-sm text-muted-foreground mt-4">
+                    <Clock className="h-4 w-4 mr-2 text-amber-500" />
+                    <span>
+                      <span className="font-medium text-foreground">{settlement.from}</span> owes you a payment
+                    </span>
+                  </div>
+                </Card>
+              </motion.div>
+            ))
           ) : (
             <div className="text-center py-12 border rounded-lg bg-background">
               <h3 className="text-lg font-medium mb-2">No pending receivables</h3>
-              <p className="text-muted-foreground">
-                No one owes you money at the moment.
-              </p>
             </div>
           )}
         </TabsContent>
-        
+
+        {/* Paid Settlements */}
         <TabsContent value="paid" className="space-y-4">
           {paid.length > 0 ? (
-            <div className="grid gap-4">
-              {paid.map((settlement, index) => (
-                <motion.div
-                  key={settlement.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                >
-                  <Card className="p-5 hover:shadow-md transition-shadow duration-300 border">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium">{settlement.description}</h3>
-                          <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-100 text-xs">
-                            Completed
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {format(new Date(settlement.date), "MMM d, yyyy")}
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <span className="font-semibold text-lg">
-                          {formatCurrency(settlement.amount)}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center text-sm text-muted-foreground mt-4">
-                      <Check className="h-4 w-4 mr-2 text-green-500" />
-                      <span>
-                        <span className="font-medium text-foreground">{settlement.from}</span>
-                        {" "}paid{" "}
-                        <span className="font-medium text-foreground">{settlement.to}</span>
-                      </span>
-                    </div>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+            paid.map((settlement, index) => (
+              <motion.div key={settlement.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                <Card className="p-5 hover:shadow-md border">
+                  <h3 className="font-medium">{settlement.description}</h3>
+                  <p className="text-sm text-muted-foreground">{format(new Date(settlement.date), "MMM d, yyyy")}</p>
+                  <span className="font-semibold text-lg">{formatCurrency(settlement.amount)}</span>
+                </Card>
+              </motion.div>
+            ))
           ) : (
-            <div className="text-center py-12 border rounded-lg bg-background">
-              <h3 className="text-lg font-medium mb-2">No completed settlements</h3>
-              <p className="text-muted-foreground">
-                You haven't settled any payments yet.
-              </p>
-            </div>
+            <div className="text-center py-12 border rounded-lg bg-background">No completed settlements</div>
           )}
         </TabsContent>
       </Tabs>

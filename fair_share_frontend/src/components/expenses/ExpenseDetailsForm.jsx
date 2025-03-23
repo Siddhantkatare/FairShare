@@ -5,15 +5,15 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
 
-const ExpenseDetailsForm = ({ 
-  description, 
-  setDescription, 
-  amount, 
-  setAmount, 
-  paidBy, 
-  setPaidBy, 
-  category, 
-  setCategory, 
+const ExpenseDetailsForm = ({
+  description,
+  setDescription,
+  amount,
+  setAmount,
+  paidBy,
+  setPaidBy,
+  category,
+  setCategory,
   participants,
   splitType,
   setSplitType,
@@ -23,9 +23,9 @@ const ExpenseDetailsForm = ({
   // Handle split type change
   const handleSplitTypeChange = (value) => {
     setSplitType(value);
-    
+
     // Reset custom splits based on the new split type
-    if (value === "equal") {
+    if (value === "Equal") {
       const equalShare = (100 / participants.length).toFixed(2);
       const newSplits = participants.map(p => ({
         id: p.id,
@@ -90,19 +90,26 @@ const ExpenseDetailsForm = ({
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="food">Food</SelectItem>
-            <SelectItem value="travel">Travel</SelectItem>
-            <SelectItem value="rent">Rent</SelectItem>
-            <SelectItem value="shopping">Shopping</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
+            <SelectItem value="Food">Food</SelectItem>
+            <SelectItem value="Travel">Travel</SelectItem>
+            <SelectItem value="Rent">Rent</SelectItem>
+            <SelectItem value="Shopping">Shopping</SelectItem>
+            <SelectItem value="Other">Other</SelectItem>
+            <SelectItem value="Utilities">Utilities</SelectItem>
+            <SelectItem value="Entertainment">Entertainment</SelectItem>
+            <SelectItem value="Business">Business</SelectItem>
+            <SelectItem value="Recharge">Recharge</SelectItem>
+            <SelectItem value="Billing">Billing</SelectItem>
+            <SelectItem value="Subscription">Subscription</SelectItem>
+            <SelectItem value="Fee">Fee</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="splitType">Split type</Label>
-        <Select 
-          value={splitType} 
+        <Select
+          value={splitType}
           onValueChange={(value) => {
             const newSplits = handleSplitTypeChange(value);
             return newSplits;
@@ -112,15 +119,15 @@ const ExpenseDetailsForm = ({
             <SelectValue placeholder="Select split type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="equal">Equal</SelectItem>
-            <SelectItem value="percentage">Percentage</SelectItem>
-            <SelectItem value="exact">Exact amount</SelectItem>
+            <SelectItem value="Equal">Equal</SelectItem>
+            <SelectItem value="Percentage">Percentage</SelectItem>
+            <SelectItem value="Manual">Manual</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {splitType !== "equal" && (
-        <motion.div 
+      {splitType !== "Equal" && (
+        <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
           exit={{ opacity: 0, height: 0 }}
@@ -128,7 +135,7 @@ const ExpenseDetailsForm = ({
           className="space-y-4 mt-4 pt-4 border-t"
         >
           <h3 className="font-medium">
-            {splitType === "percentage" ? "Percentage split" : "Exact amount split"}
+            {splitType === "Percentage" ? "Percentage split" : "Manual split"}
           </h3>
           {participants.map((participant) => {
             const splitValue = customSplits.find(s => s.id === participant.id)?.value || "";
@@ -143,12 +150,12 @@ const ExpenseDetailsForm = ({
                     type="number"
                     value={splitValue}
                     onChange={(e) => updateCustomSplit(participant.id, e.target.value)}
-                    placeholder={splitType === "percentage" ? "0%" : "0.00"}
-                    step={splitType === "percentage" ? "1" : "0.01"}
+                    placeholder={splitType === "Percentage" ? "0%" : "0.00"}
+                    step={splitType === "Percentage" ? "1" : "0.01"}
                     min="0"
                     className="focus-ring"
                   />
-                  {splitType === "percentage" && (
+                  {splitType === "Percentage" && (
                     <span className="ml-2 text-sm">%</span>
                   )}
                 </div>
