@@ -3,6 +3,7 @@ import { Sidebar } from "./Sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import { MenuIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 export const AppLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -54,7 +55,7 @@ export const AppLayout = ({ children }) => {
               <MenuIcon className="h-5 w-5" />
             )}
           </Button>
-          <h1 className="text-xl font-medium">FairShare</h1>
+          <Link to="/home"><h1 className="text-xl font-medium">FairShare</h1></Link>
         </header>
 
         <main className="flex-1 p-4 sm:p-6">

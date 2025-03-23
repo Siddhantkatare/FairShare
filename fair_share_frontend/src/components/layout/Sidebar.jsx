@@ -1,11 +1,14 @@
 import { Home, Users, LogOut, DollarSign } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { XIcon } from "lucide-react";
+import { toast } from "react-toastify";
+import { ToastProperty } from "../../lib/config";
 
 export const Sidebar = ({ onClose }) => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
@@ -13,13 +16,19 @@ export const Sidebar = ({ onClose }) => {
     { icon: DollarSign, label: "Settle", path: "/settle" },
   ];
 
+  const logOut = () => {
+    localStorage.removeItem('loginData');
+    toast.success('Logged out successfully', ToastProperty);
+    navigate('/home');
+  }
+
   return (
     <div className="h-full w-64 bg-card border-r flex flex-col overflow-hidden">
       <div className="p-6 border-b flex justify-between items-center">
-        <h2 className="text-2xl font-medium flex items-center">
+        <Link to="/home"> <h2 className="text-2xl font-medium flex items-center">
           <span className="bg-primary text-primary-foreground p-1 rounded mr-2 text-sm">FS</span>
           FairShare
-        </h2>
+        </h2></Link>
         <Button
           variant="ghost"
           size="icon"
@@ -65,6 +74,7 @@ export const Sidebar = ({ onClose }) => {
 
       <div className="p-4 mt-auto border-t">
         <Button
+          onClick={() => logOut()}
           variant="ghost"
           className="w-full justify-start text-muted-foreground hover:text-foreground"
         >

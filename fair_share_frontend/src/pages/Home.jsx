@@ -6,7 +6,7 @@ import { loggedData } from '../lib/config';
 
 function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-   const loginUser = loggedData(); // Logged-in user
+  const loginUser = loggedData(); // Logged-in user
   return (
     <div className="bg-white">
       <nav className="bg-black text-white p-4">
@@ -20,12 +20,12 @@ function Home() {
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/home" className="hover:text-gray-300">Home</Link>
             <Link to="/about" className="hover:text-gray-300">About</Link>
-            <Link to="/"><button className="px-4 py-2 border border-white rounded-lg hover:bg-white hover:text-black transition">
+            {!loginUser && (<><Link to="/"><button className="px-6 py-2 border border-white rounded-lg hover:bg-white hover:text-black transition">
               Login
             </button></Link>
-            <Link to="/"><button className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition">
-              Sign Up
-            </button></Link>
+              <Link to="/"><button className="px-6 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition">
+                Sign Up
+              </button></Link></>)}
           </div>
 
           {/* Mobile Menu Button */}
@@ -64,9 +64,9 @@ function Home() {
             <p className="text-gray-600 text-xl mb-8">
               Track expenses, split bills, and manage group finances with ease. Never worry about who owes what again.
             </p>
-            <button className="bg-black text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-800 transition">
+            <Link to={loginUser ? "/dashboard" : "/"}> <button className="bg-black text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-800 transition">
               Get Started Free
-            </button>
+            </button></Link>
           </div>
           <div className="md:w-1/2">
             <img
@@ -107,12 +107,12 @@ function Home() {
         <div className="bg-black text-white rounded-2xl p-12 text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Start Splitting Bills?</h2>
           <p className="text-xl mb-8">Join thousands of users who make group expenses stress-free with Fairshare.</p>
-          <button className="bg-white text-black px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-200 transition inline-flex items-center">
+          <Link to="/home"><button className="bg-white text-black px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-200 transition inline-flex items-center">
             Get Started <ArrowRight className="ml-2" />
-          </button>
+          </button></Link>
         </div>
-      </section>
-    </div>
+      </section >
+    </div >
   );
 }
 
