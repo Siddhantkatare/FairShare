@@ -3,22 +3,13 @@ import { Sidebar } from "./Sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import { MenuIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 export const AppLayout = ({ children }) => {
-  const isMobile = useIsMobile();
-  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
-
-  // Close sidebar on mobile when route changes or on resize
-  useEffect(() => {
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
-  }, [isMobile]);
 
   return (
     <div className="app-container flex min-h-screen">

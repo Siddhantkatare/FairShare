@@ -1,21 +1,15 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AppProvider } from "@/context/AppContext";
 
 // Pages
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Groups from "./pages/Groups";
-import AddExpense from "./pages/AddExpense";
+// import AddExpense from "./pages/AddExpense";
 import Settle from "./pages/Settle";
-
-const queryClient = new QueryClient();
+import { AddExpenseForm } from "./components/expenses/AddExpenseForm";
 
 // Loading spinner
 const LoadingSpinner = () => (
@@ -25,28 +19,20 @@ const LoadingSpinner = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AppProvider>
-      <TooltipProvider>
-        <BrowserRouter>
-          <Toaster />
-          <Sonner position="top-right" expand={true} closeButton richColors />
-          <AnimatePresence mode="wait">
-            <Suspense fallback={<LoadingSpinner />}>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/groups" element={<Groups />} />
-                <Route path="/add-expense" element={<AddExpense />} />
-                <Route path="/settle" element={<Settle />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </AnimatePresence>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AppProvider>
-  </QueryClientProvider>
+  <BrowserRouter>
+    <AnimatePresence mode="wait">
+      <Suspense fallback={<LoadingSpinner />}>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/groups" element={<Groups />} />
+          <Route path="/add-expense" element={<AddExpenseForm />} />
+          <Route path="/settle" element={<Settle />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </AnimatePresence>
+  </BrowserRouter>
 );
 
 export default App;
