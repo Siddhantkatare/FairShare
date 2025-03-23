@@ -75,7 +75,7 @@ export const loginController = async (request, response) => {
 
         if (password === user.password) {
             let secrateKey = USER_SECRATE_KEY
-            const token = jwt.sign(user, secrateKey, { expiresIn: '1h' })
+            const token = jwt.sign(user, secrateKey, { expiresIn: '1d' })
             console.log("Generated Token ===> ", token)
             return response.status(StatusCodes.CREATED).json({ success: true, message: "Login successful", userData: { ...user, token } })
         } else {

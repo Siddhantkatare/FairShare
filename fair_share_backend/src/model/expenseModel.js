@@ -21,6 +21,11 @@ const expenseSchema = new mongoose.Schema({
         enum: ['Food', 'Travel', 'Rent', 'Utilities', 'Entertainment', 'Other', 'Business', 'Recharge', 'Billing', 'Subscription', 'Fee'],
         default: 'Other',
     },
+    splitType: {
+        type: String,
+        enum: ['Equal', 'Percentage', 'Manual'],
+        required: true,
+    },
     date: {
         type: Date,
         default: Date.now,
@@ -28,7 +33,7 @@ const expenseSchema = new mongoose.Schema({
     paidBy: {
         name: {
             type: String,
-            required: true,
+            default: "",
         },
         email: {
             type: String,
@@ -37,20 +42,20 @@ const expenseSchema = new mongoose.Schema({
     },
     participants: [
         {
-            name: {
-                type: String,
-                required: true,
-            },
             email: {
                 type: String,
                 required: true,
+            },
+            name: {
+                type: String,
+                default: "",
             },
             share: {
                 type: Number,
                 required: true,
                 min: 0,
             },
-            settled: {
+            paid: {
                 type: Boolean,
                 default: false,
             },
