@@ -1,5 +1,6 @@
-
 import { useState } from "react";
+import { Button } from "../ui/button";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,7 +19,8 @@ const ExpenseDetailsForm = ({
   splitType,
   setSplitType,
   customSplits,
-  updateCustomSplit
+  updateCustomSplit,
+  onSubmit
 }) => {
   // Handle split type change
   const handleSplitTypeChange = (value) => {
@@ -31,17 +33,19 @@ const ExpenseDetailsForm = ({
         id: p.id,
         value: equalShare,
       }));
-      return newSplits;
+      newSplits.forEach(split => updateCustomSplit(split.id, split.value));
     } else {
-      return participants.map(p => ({
-        id: p.id,
-        value: "",
-      }));
+      participants.forEach(p => updateCustomSplit(p.id, ""));
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit();
+  };
+
   return (
-    <div className="space-y-4">
+    <form className="space-y-4" onSubmit={handleSubmit}>
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>
         <Input
@@ -110,10 +114,7 @@ const ExpenseDetailsForm = ({
         <Label htmlFor="splitType">Split type</Label>
         <Select
           value={splitType}
-          onValueChange={(value) => {
-            const newSplits = handleSplitTypeChange(value);
-            return newSplits;
-          }}
+          onValueChange={handleSplitTypeChange}
         >
           <SelectTrigger id="splitType" className="focus-ring">
             <SelectValue placeholder="Select split type" />
@@ -164,7 +165,9 @@ const ExpenseDetailsForm = ({
           })}
         </motion.div>
       )}
-    </div>
+      
+      <Button type="submit">Save Expense</Button>
+    </form>
   );
 };
 
