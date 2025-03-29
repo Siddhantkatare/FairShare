@@ -19,6 +19,7 @@ import {
   BookOpen,
   UserPlus,
   X,
+  MailIcon,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/formatCurrency";
 import { Button } from "@/components/ui/button";
@@ -125,15 +126,15 @@ export const ExpenseCard = ({ expense, index, onSave }) => {
 
           <div className="flex flex-col gap-3">
             <div className="flex items-center text-sm text-muted-foreground">
-              <DollarSign className="h-4 w-4 mr-1" />
+              <MailIcon className="h-4 w-4 mr-1" />
               <span>
               <span className="font-medium text-foreground text-green">{expense.paidBy.email}</span> 
               <span className="text-green-600"> paid</span>
               </span>
             </div>
 
-            <div className="flex items-center text-sm text-muted-foreground">
-              <UserPlus className="h-4 w-4 mr-1 " />
+            <div className="text-black flex items-center text-sm text-muted-foreground">
+              <UserPlus className="h-4 w-4 mr-1" />
               <span>
                 {getSplitTypeLabel()} between {expense.participants.length} people
               </span>

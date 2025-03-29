@@ -27,7 +27,7 @@ export const Sidebar = ({ onClose }) => {
       <div className="p-6 border-b flex justify-between items-center">
         <Link to="/home"> <h2 className="text-2xl font-medium flex items-center">
           <img src="../../../public/Asset 2.png" alt="" className="w-10 mr-3" />
-            FairShare
+            <span class="font-m">FairShare</span>
         </h2></Link>
         <Button
           variant="ghost"
