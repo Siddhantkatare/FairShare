@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ProfileSection from "../ProfileSection/Profile";
 import { Sidebar } from "./Sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import { MenuIcon, XIcon } from "lucide-react";
@@ -41,21 +42,29 @@ export const AppLayout = ({ children }) => {
       </AnimatePresence>
 
       <div className="flex-1 flex flex-col overflow-x-hidden">
-        <header className="h-16 flex items-center px-4 sm:px-6 border-b bg-background/95 backdrop-blur-md sticky top-0 z-10">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            className="mr-4"
-            aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
-          >
-            {sidebarOpen ? (
-              <XIcon className="h-5 w-5" />
-            ) : (
-              <MenuIcon className="h-5 w-5" />
-            )}
-          </Button>
-          <Link to="/"><h1 className="text-xl font-medium">FairShare</h1></Link>
+        <header className="h-16 flex items-center justify-between px-4 sm:px-6 border-b bg-background/95 backdrop-blur-md sticky top-0 z-10">
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="mr-4"
+              aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+            >
+              {sidebarOpen ? (
+                <XIcon className="h-5 w-5" />
+              ) : (
+                <MenuIcon className="h-5 w-5" />
+              )}
+            </Button>
+            <Link to="/">
+              <h1 className="text-xl font-medium">FairShare</h1>
+            </Link>
+          </div>
+          
+          <div className="flex items-center">
+            <ProfileSection />
+          </div>
         </header>
 
         <main className="flex-1 p-4 sm:p-6">
