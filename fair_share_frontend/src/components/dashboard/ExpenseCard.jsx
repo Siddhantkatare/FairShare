@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import {
   UtensilsCrossed,
   Plane,
@@ -29,7 +29,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export const ExpenseCard = ({ expense, index, onSave }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editedExpense, setEditedExpense] = useState({...expense});
+  const [editedExpense, setEditedExpense] = useState({
+    ...expense,
+    participants: [...expense.participants],
+    date: format(new Date(expense.date), "yyyy-MM-dd")
+  });
 
   const getCategoryIcon = () => {
     switch (expense.category) {
@@ -82,8 +86,47 @@ export const ExpenseCard = ({ expense, index, onSave }) => {
     }));
   };
 
+  const handleParticipantChange = (index, field, value) => {
+    setEditedExpense(prev => {
+      const updatedParticipants = [...prev.participants];
+      updatedParticipants[index] = {
+        ...updatedParticipants[index],
+        [field]: field === 'share' ? Number(value) : value
+      };
+      return {
+        ...prev,
+        participants: updatedParticipants
+      };
+    });
+  };
+
+  const handleSplitTypeChange = (value) => {
+    setEditedExpense(prev => {
+      let updatedParticipants = [...prev.participants];
+      
+      if (value === "Equal") {
+        const equalShare = prev.amount / prev.participants.length;
+        updatedParticipants = updatedParticipants.map(p => ({
+          ...p,
+          share: equalShare
+        }));
+      }
+      
+      return {
+        ...prev,
+        splitType: value,
+        participants: updatedParticipants
+      };
+    });
+  };
+
   const handleSave = () => {
-    onSave(editedExpense);
+    // Format the date back to ISO string before saving
+    const expenseToSave = {
+      ...editedExpense,
+      date: new Date(editedExpense.date).toISOString()
+    };
+    onSave(expenseToSave);
     setIsEditModalOpen(false);
   };
 
@@ -196,7 +239,7 @@ export const ExpenseCard = ({ expense, index, onSave }) => {
                       id="amount"
                       type="number"
                       value={editedExpense.amount}
-                      onChange={(e) => handleInputChange('amount', e.target.value)}
+                      onChange={(e) => handleInputChange('amount', Number(e.target.value))}
                     />
                   </div>
 
@@ -231,9 +274,55 @@ export const ExpenseCard = ({ expense, index, onSave }) => {
                     <Input
                       id="date"
                       type="date"
-                      value={format(new Date(editedExpense.date), 'yyyy-MM-dd')}
+                      value={editedExpense.date}
                       onChange={(e) => handleInputChange('date', e.target.value)}
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="splitType">Split Type</Label>
+                    <Select
+                      value={editedExpense.splitType}
+                      onValueChange={handleSplitTypeChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select split type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Equal">Equal</SelectItem>
+                        <SelectItem value="Percentage">Percentage</SelectItem>
+                        <SelectItem value="Manual">Manual</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="pt-4 border-t">
+                    <h4 className="font-medium mb-3">Participants</h4>
+                    <div className="space-y-3">
+                      {editedExpense.participants.map((participant, index) => (
+                        <div key={index} className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor={`email-${index}`}>Email</Label>
+                            <Input
+                              id={`email-${index}`}
+                              value={participant.email}
+                              onChange={(e) => handleParticipantChange(index, 'email', e.target.value)}
+                              className="w-full"
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor={`share-${index}`}>Amount</Label>
+                            <Input
+                              id={`share-${index}`}
+                              type="number"
+                              value={participant.share}
+                              onChange={(e) => handleParticipantChange(index, 'share', e.target.value)}
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="flex justify-end gap-2 pt-4">
