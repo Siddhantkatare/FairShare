@@ -108,12 +108,19 @@ export const ExpenseCard = ({ expense, index }) => {
           </div>
         </div>
 
-        <div className="mt-4 pt-4 border-t">
-          <div className="grid grid-cols-2 gap-2">
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          <div className="space-y-2">
             {expense.participants.map((participant) => (
-              <div key={participant.email} className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{participant.email}</span>
-                <span className="font-medium">{formatCurrency(participant.share)}</span>
+              <div 
+                key={participant.email} 
+                className="flex justify-between items-center"
+              >
+                <div className="bg-gray-100 text-gray-700 px-3 py-2 rounded-full text-sm max-w-[60%] truncate">
+                  {participant.email}
+                </div>
+                <div className="bg-gray-100 px-3 py-2 rounded-full text-sm font-medium">
+                  {formatCurrency(participant.share)}
+                </div>
               </div>
             ))}
           </div>
