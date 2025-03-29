@@ -13,6 +13,7 @@ import { ToastContainer } from "react-toastify";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Home from "./pages/Home";
 import About from "./pages/About";
+import GroupDetail from "./pages/GroupDetail";
 
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -21,17 +22,18 @@ const LoadingSpinner = () => (
 );
 
 const AnimatedRoutes = () => {
-  const location = useLocation(); // Ensure each route has a unique key
+  const location = useLocation();
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/" element={<Index />} />
+        <Route path="/auth" element={<Index />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/groups" element={<Groups />} />
+          <Route path="/groups/:id" element={<GroupDetail />} />
           <Route path="/add-expense" element={<AddExpenseForm />} />
           <Route path="/settle" element={<Settle />} />
           <Route path="*" element={<NotFound />} />

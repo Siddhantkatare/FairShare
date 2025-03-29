@@ -24,7 +24,7 @@ export const ExpensesOverview = () => {
     if (response.success) {
       setExpenses(response.allExpenses)
     } else {
-      toast.error(response.data.message, ToastProperty)
+      toast.error(response.message, ToastProperty)
     }
   }
 
@@ -34,6 +34,7 @@ export const ExpensesOverview = () => {
 
   return (
     <div className="space-y-6">
+      <h1 className="text-3xl font-semibold">Welcome, {loginData.name || loginData.email || "N/A"}</h1>
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Recent Expenses</h2>
         <div className="flex gap-2">
@@ -52,9 +53,13 @@ export const ExpensesOverview = () => {
         </div>
       </div>
 
-      {expenses.length > 0 ? (
+      {expenses && expenses.filter(e =>
+        e.participants.some(p => p.email === loginData.email)
+      ).length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {expenses.map((expense, index) => (
+          {expenses.filter(e =>
+            e.participants.some(p => p.email === loginData.email)
+          ).map((expense, index) => (
             <ExpenseCard key={expense.id} expense={expense} index={index} />
           ))}
         </div>

@@ -132,7 +132,7 @@ export const AddExpenseForm = () => {
       splitType,
     };
 
-    console.log("newExpense", newExpense);
+    // console.log("newExpense", newExpense);
     const response = await addExpense(loginData.token, newExpense)
 
     if (response.success) {

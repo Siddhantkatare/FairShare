@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Shield, Target, Heart, X, Menu } from 'lucide-react';
 import { Link } from "react-router-dom";
+import { loggedData } from '../lib/config';
 
 function About() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const loginUser = loggedData();
   return (
     <div className="bg-white">
       <nav className="bg-black text-white p-4">
@@ -15,14 +17,19 @@ function About() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/home" className="hover:text-gray-300">Home</Link>
+            <Link to="/" className="hover:text-gray-300">Home</Link>
             <Link to="/about" className="hover:text-gray-300">About</Link>
-            <button className="px-4 py-2 border border-white rounded-lg hover:bg-white hover:text-black transition">
+            {!loginUser && (<><Link to="/auth"><button className="px-6 py-2 border border-white rounded-lg hover:bg-white hover:text-black transition">
               Login
-            </button>
-            <button className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition">
-              Sign Up
-            </button>
+            </button></Link>
+              <Link to="/auth"><button className="px-6 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition">
+                Sign Up
+              </button></Link></>)}
+            {loginUser && (
+              <Link to="/dashboard"><button className="px-6 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition">
+                Dashboard
+              </button></Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -40,12 +47,21 @@ function About() {
             <div className="flex flex-col space-y-4">
               <Link to="/" className="hover:text-gray-300">Home</Link>
               <Link to="/about" className="hover:text-gray-300">About</Link>
-              <button className="px-4 py-2 border border-white rounded-lg hover:bg-white hover:text-black transition">
-                Login
-              </button>
-              <button className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition">
-                Sign Up
-              </button>
+              {!loginUser && (
+                <>
+                  <Link to="/auth"><button className="px-4 py-2 border border-white rounded-lg hover:bg-white hover:text-black transition">
+                    Login
+                  </button></Link>
+                  <Link to="/auth"><button className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition">
+                    Sign Up
+                  </button></Link>
+                </>
+              )}
+              {loginUser && (
+                <Link to="/dashboard"><button className="px-6 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition">
+                  Dashboard
+                </button></Link>
+              )}
             </div>
           </div>
         )}

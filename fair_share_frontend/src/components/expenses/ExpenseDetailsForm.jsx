@@ -165,8 +165,6 @@ const ExpenseDetailsForm = ({
           })}
         </motion.div>
       )}
-      
-      <Button type="submit">Save Expense</Button>
     </form>
   );
 };

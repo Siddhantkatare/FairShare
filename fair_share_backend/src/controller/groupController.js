@@ -9,39 +9,39 @@ export const addGroupController = async (request, response) => {
                 message: Messages.PAYLOAD_MISSING_OR_INVALID
             });
         }
+        // console.log("request", request.body);
+        const { name, description, members } = request.body;
+        const { id, email, name: createdBy } = request.payload;
 
-        const { name, description, participants } = request.body;
-        const { id: createdBy, email } = request.payload;
-
-        if (!name || !participants) {
+        if (!name || !members) {
             return response.status(StatusCodes.BAD_REQUEST).json({
                 success: false,
-                message: "Group name and participants are required"
+                message: "Group name and members are required"
             });
         }
 
-        if (participants.length < 1) {
+        if (members.length < 1) {
             return response.status(StatusCodes.BAD_REQUEST).json({
                 success: false,
                 message: "At least one participant is required"
             });
         }
 
-        const invalidParticipants = participants.filter(p => !p.email);
+        const invalidParticipants = members.filter(p => !p.email);
         if (invalidParticipants.length > 0) {
             return response.status(StatusCodes.BAD_REQUEST).json({
                 success: false,
-                message: "All participants must have an email"
+                message: "All members must have an email"
             });
         }
 
-        const creatorExists = participants.some(
+        const creatorExists = members.some(
             p => p.userId === createdBy || p.email === email
         );
-        if (!creatorExists) {
+        if (creatorExists) {
             return response.status(StatusCodes.BAD_REQUEST).json({
                 success: false,
-                message: "Creator must be included in participants"
+                message: "Admin can't add itself to the list of members"
             });
         }
 
@@ -51,15 +51,18 @@ export const addGroupController = async (request, response) => {
             id: newId,
             name,
             description,
-            createdBy,
-            participants
+            createdBy: {
+                id,
+                email,
+                name: createdBy,
+            },
+            members: [...members, { email }],
         });
 
         if (newGroup) {
             return response.status(StatusCodes.OK).json({
                 success: true,
-                message: "Group created successfully",
-                data: newGroup
+                message: "Group created successfully"
             });
         }
 
@@ -88,7 +91,7 @@ export const updateGroupController = async (request, response) => {
         }
 
         const { id } = request.params;
-        const { name, description, participants } = request.body;
+        const { name, description, members } = request.body;
         const { id: userId, email } = request.payload;
 
         const existingGroup = await groupModel.findOne({ id: id });
@@ -106,29 +109,29 @@ export const updateGroupController = async (request, response) => {
             });
         }
 
-        if (participants) {
-            if (participants.length < 1) {
+        if (members) {
+            if (members.length < 1) {
                 return response.status(StatusCodes.BAD_REQUEST).json({
                     success: false,
                     message: "At least one participant is required"
                 });
             }
 
-            const invalidParticipants = participants.filter(p => !p.email);
+            const invalidParticipants = members.filter(p => !p.email);
             if (invalidParticipants.length > 0) {
                 return response.status(StatusCodes.BAD_REQUEST).json({
                     success: false,
-                    message: "All participants must have an email"
+                    message: "All members must have an email"
                 });
             }
 
-            const creatorExists = participants.some(
+            const creatorExists = members.some(
                 p => p.userId === userId || p.email === email
             );
             if (!creatorExists) {
                 return response.status(StatusCodes.BAD_REQUEST).json({
                     success: false,
-                    message: "Creator must be included in participants"
+                    message: "Creator must be included in members"
                 });
             }
         }
@@ -136,7 +139,7 @@ export const updateGroupController = async (request, response) => {
         const updateData = {};
         if (name) updateData.name = name;
         if (description) updateData.description = description;
-        if (participants) updateData.participants = participants;
+        if (members) updateData.members = members;
 
         const updatedGroup = await groupModel.updateOne(
             { id: id },
@@ -198,6 +201,44 @@ export const getGroupByIdController = async (request, response) => {
         return response.status(StatusCodes.OK).json({ group, success: true, message: "Group Fetched Successfully" })
     } catch (error) {
         console.log("Error in getGroupByIdController", error)
+        return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.SOMETHING_WENT_WRONG })
+    }
+}
+
+export const pushMessgeToGroupController = async (request, response) => {
+    // This controller is also updates the status of the query
+    try {
+        if (!request.payload) {
+            return response.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: "Payload Missing or Invalid" });
+        }
+        const { sender, name, message, createdAt } = request.body;
+        const { id } = request.params;
+        console.log("pushMessgeToGroupController", request.body);
+        const existingGroup = await groupModel.findOne({ id: id });
+        if (!existingGroup) {
+            return response.status(StatusCodes.NO_CONTENT).json({
+                success: false,
+                message: "Group not found"
+            });
+        }
+        const newMessage = {
+            sender,
+            name,
+            message,
+            createdAt: createdAt || Date.now()
+        };
+
+        existingGroup.conversation.push(newMessage);
+
+        const updatedGroup = await existingGroup.save();
+
+        if (updatedGroup) {
+            return response.status(StatusCodes.OK).json({ success: true, message: "Message Sent successfully" })
+        }
+        console.log("Failed to send message")
+        return response.status(StatusCodes.BAD_REQUEST).json({ success: false, message: Messages.SOMETHING_WENT_WRONG })
+    } catch (error) {
+        console.log("Error in pushMessgeToGroupController", error)
         return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.SOMETHING_WENT_WRONG })
     }
 }
