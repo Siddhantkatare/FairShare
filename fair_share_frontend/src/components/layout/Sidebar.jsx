@@ -26,8 +26,8 @@ export const Sidebar = ({ onClose }) => {
     <div className="h-full w-64 bg-card border-r flex flex-col overflow-hidden">
       <div className="p-6 border-b flex justify-between items-center">
         <Link to="/home"> <h2 className="text-2xl font-medium flex items-center">
-          <span className="bg-primary text-primary-foreground p-1 rounded mr-2 text-sm">FS</span>
-          FairShare
+          <img src="../../../public/Asset 2.png" alt="" className="w-10 mr-3" />
+            FairShare
         </h2></Link>
         <Button
           variant="ghost"
