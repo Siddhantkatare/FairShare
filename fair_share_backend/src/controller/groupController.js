@@ -9,41 +9,41 @@ export const addGroupController = async (request, response) => {
                 message: Messages.PAYLOAD_MISSING_OR_INVALID
             });
         }
-
-        const { name, description, participants } = request.body;
+        console.log("request", request.body);
+        const { name, description, members } = request.body;
         const { id: createdBy, email } = request.payload;
 
-        if (!name || !participants) {
+        if (!name || !members) {
             return response.status(StatusCodes.BAD_REQUEST).json({
                 success: false,
-                message: "Group name and participants are required"
+                message: "Group name and members are required"
             });
         }
 
-        if (participants.length < 1) {
+        if (members.length < 1) {
             return response.status(StatusCodes.BAD_REQUEST).json({
                 success: false,
                 message: "At least one participant is required"
             });
         }
 
-        const invalidParticipants = participants.filter(p => !p.email);
+        const invalidParticipants = members.filter(p => !p.email);
         if (invalidParticipants.length > 0) {
             return response.status(StatusCodes.BAD_REQUEST).json({
                 success: false,
-                message: "All participants must have an email"
+                message: "All members must have an email"
             });
         }
 
-        const creatorExists = participants.some(
-            p => p.userId === createdBy || p.email === email
-        );
-        if (!creatorExists) {
-            return response.status(StatusCodes.BAD_REQUEST).json({
-                success: false,
-                message: "Creator must be included in participants"
-            });
-        }
+        // const creatorExists = members.some(
+        //     p => p.userId === createdBy || p.email === email
+        // );
+        // if (!creatorExists) {
+        //     return response.status(StatusCodes.BAD_REQUEST).json({
+        //         success: false,
+        //         message: "Creator must be included in members"
+        //     });
+        // }
 
         const newId = await generateUniqueId(groupModel, "GRP");
 
@@ -52,14 +52,13 @@ export const addGroupController = async (request, response) => {
             name,
             description,
             createdBy,
-            participants
+            members
         });
 
         if (newGroup) {
             return response.status(StatusCodes.OK).json({
                 success: true,
-                message: "Group created successfully",
-                data: newGroup
+                message: "Group created successfully"
             });
         }
 
@@ -88,7 +87,7 @@ export const updateGroupController = async (request, response) => {
         }
 
         const { id } = request.params;
-        const { name, description, participants } = request.body;
+        const { name, description, members } = request.body;
         const { id: userId, email } = request.payload;
 
         const existingGroup = await groupModel.findOne({ id: id });
@@ -106,29 +105,29 @@ export const updateGroupController = async (request, response) => {
             });
         }
 
-        if (participants) {
-            if (participants.length < 1) {
+        if (members) {
+            if (members.length < 1) {
                 return response.status(StatusCodes.BAD_REQUEST).json({
                     success: false,
                     message: "At least one participant is required"
                 });
             }
 
-            const invalidParticipants = participants.filter(p => !p.email);
+            const invalidParticipants = members.filter(p => !p.email);
             if (invalidParticipants.length > 0) {
                 return response.status(StatusCodes.BAD_REQUEST).json({
                     success: false,
-                    message: "All participants must have an email"
+                    message: "All members must have an email"
                 });
             }
 
-            const creatorExists = participants.some(
+            const creatorExists = members.some(
                 p => p.userId === userId || p.email === email
             );
             if (!creatorExists) {
                 return response.status(StatusCodes.BAD_REQUEST).json({
                     success: false,
-                    message: "Creator must be included in participants"
+                    message: "Creator must be included in members"
                 });
             }
         }
@@ -136,7 +135,7 @@ export const updateGroupController = async (request, response) => {
         const updateData = {};
         if (name) updateData.name = name;
         if (description) updateData.description = description;
-        if (participants) updateData.participants = participants;
+        if (members) updateData.members = members;
 
         const updatedGroup = await groupModel.updateOne(
             { id: id },

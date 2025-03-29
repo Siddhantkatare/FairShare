@@ -1,4 +1,5 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+export const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID
 
 export const ToastMessages = {
     CAN_NOT_CREATE: "Unable to create at the moment. Kindly refresh or try again later.",

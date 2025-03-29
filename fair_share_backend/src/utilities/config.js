@@ -2,6 +2,9 @@ import dotenv from "dotenv"
 
 dotenv.config()
 
+export const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID
+export const RAZORPAY_SECRET = process.env.RAZORPAY_SECRET
+
 export const USER_SECRATE_KEY = process.env.USER_SECRATE_KEY
 export const CONNECTION_STRING = process.env.CONNECTION_STRING
 

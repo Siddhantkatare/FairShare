@@ -24,7 +24,7 @@ export const ExpensesOverview = () => {
     if (response.success) {
       setExpenses(response.allExpenses)
     } else {
-      toast.error(response.data.message, ToastProperty)
+      toast.error(response.message, ToastProperty)
     }
   }
 

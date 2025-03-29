@@ -6,26 +6,31 @@ import { loggedData } from '../lib/config';
 
 function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const loginUser = loggedData(); // Logged-in user
+  const loginUser = loggedData();
   return (
     <div className="bg-white">
       <nav className="bg-black text-white p-4">
         <div className="container mx-auto flex justify-between items-center">
-          <Link to="/home" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <img src="../../public/Asset 3.png" alt="Fairshare Logo" className="h-8 w-8" />
             <span className="text-2xl font-bold">Fairshare</span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/home" className="hover:text-gray-300">Home</Link>
+            <Link to="/" className="hover:text-gray-300">Home</Link>
             <Link to="/about" className="hover:text-gray-300">About</Link>
-            {!loginUser && (<><Link to="/"><button className="px-6 py-2 border border-white rounded-lg hover:bg-white hover:text-black transition">
+            {!loginUser && (<><Link to="/auth"><button className="px-6 py-2 border border-white rounded-lg hover:bg-white hover:text-black transition">
               Login
             </button></Link>
-              <Link to="/"><button className="px-6 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition">
+              <Link to="/auth"><button className="px-6 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition">
                 Sign Up
               </button></Link></>)}
+            {loginUser && (
+              <Link to="/dashboard"><button className="px-6 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition">
+                Dashboard
+              </button></Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -43,12 +48,21 @@ function Home() {
             <div className="flex flex-col space-y-4">
               <Link to="/" className="hover:text-gray-300">Home</Link>
               <Link to="/about" className="hover:text-gray-300">About</Link>
-              <button className="px-4 py-2 border border-white rounded-lg hover:bg-white hover:text-black transition">
-                Login
-              </button>
-              <button className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition">
-                Sign Up
-              </button>
+              {!loginUser && (
+                <>
+                  <Link to="/auth"><button className="px-4 py-2 border border-white rounded-lg hover:bg-white hover:text-black transition">
+                    Login
+                  </button></Link>
+                  <Link to="/auth"><button className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition">
+                    Sign Up
+                  </button></Link>
+                </>
+              )}
+              {loginUser && (
+                <Link to="/dashboard"><button className="px-6 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition">
+                  Dashboard
+                </button></Link>
+              )}
             </div>
           </div>
         )}
@@ -107,7 +121,7 @@ function Home() {
         <div className="bg-black text-white rounded-2xl p-12 text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Start Splitting Bills?</h2>
           <p className="text-xl mb-8">Join thousands of users who make group expenses stress-free with Fairshare.</p>
-          <Link to="/home"><button className="bg-white text-black px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-200 transition inline-flex items-center">
+          <Link to="/"><button className="bg-white text-black px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-200 transition inline-flex items-center">
             Get Started <ArrowRight className="ml-2" />
           </button></Link>
         </div>

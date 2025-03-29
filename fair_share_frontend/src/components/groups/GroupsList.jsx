@@ -1,24 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { PlusIcon, Users, X, Info, Split } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAppContext } from "@/context/AppContext";
 import { formatCurrency } from "@/lib/formatCurrency";
 import { useNavigate } from "react-router-dom";
+import { addGroup, getAllGroups } from "../../api/groupApi";
+import { loggedData, ToastProperty } from "../../lib/config";
 
 export const GroupsList = () => {
-  const { groups, addGroup } = useAppContext();
   const navigate = useNavigate();
+  const [groups, setGroups] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newGroupName, setNewGroupName] = useState("");
+  const [groupName, setGroupName] = useState("");
+  const [description, setDescription] = useState("");
+  const loginData = loggedData();
   const [members, setMembers] = useState([
     { id: "1", email: "" },
   ]);
+
+  const getGroups = async () => {
+    const response = await getAllGroups(loginData.token);
+    if (response.success) {
+      setGroups(response.allGroups)
+    } else {
+      toast.error(response.data.message, ToastProperty)
+    }
+  }
 
   const addMember = () => {
     setMembers([
@@ -41,8 +53,8 @@ export const GroupsList = () => {
     setMembers(members.filter((m) => m.id !== id));
   };
 
-  const handleCreateGroup = () => {
-    if (!newGroupName.trim()) {
+  const handleCreateGroup = async () => {
+    if (!groupName.trim()) {
       toast.error("Please enter a group name");
       return;
     }
@@ -53,27 +65,34 @@ export const GroupsList = () => {
     }
 
     const newGroup = {
-      id: Date.now().toString(),
-      name: newGroupName,
-      members: members.length,
-      totalExpenses: 0,
-      memberList: members.map(m => m.email)
+      name: groupName,
+      description,
+      members
     };
-
-    addGroup(newGroup);
-    toast.success("Group created successfully!");
-    setIsDialogOpen(false);
-    resetForm();
+    const response = await addGroup(loginData.token, newGroup);
+    if (response.success) {
+      toast.success(response.message, ToastProperty);
+      setIsDialogOpen(false);
+      resetForm();
+      getGroups();
+    } else {
+      toast.error(response.message, ToastProperty)
+    }
   };
 
   const resetForm = () => {
-    setNewGroupName("");
+    setGroupName("");
+    setDescription("");
     setMembers([{ id: "1", email: "" }]);
   };
-  
+
   const navigateToGroupDetail = (groupId) => {
     navigate(`/groups/${groupId}`);
   };
+
+  useEffect(() => {
+    getGroups();
+  }, [])
 
   return (
     <div className="space-y-6">
@@ -95,9 +114,20 @@ export const GroupsList = () => {
                 <Label htmlFor="groupName">Group Name</Label>
                 <Input
                   id="groupName"
-                  value={newGroupName}
-                  onChange={(e) => setNewGroupName(e.target.value)}
+                  value={groupName}
+                  onChange={(e) => setGroupName(e.target.value)}
                   placeholder="e.g., Weekend Trip"
+                  className="focus-ring"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Description of group"
                   className="focus-ring"
                 />
               </div>
@@ -158,15 +188,23 @@ export const GroupsList = () => {
                   <div>
                     <h3 className="font-medium">{group.name}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {group.members} {group.members === 1 ? "member" : "members"}
+                      {/* {group.members} {group.members === 1 ? "member" : "members"} */}
                     </p>
                   </div>
+                </div>
+                <p className="text-sm text-muted-foreground">{group.description}</p>
+
+                <div className="flex justify-between items-center mt-3 pt-3">
+                  <span className="text-sm text-muted-foreground">Members</span>
+                  <span className="font-medium">
+                    {group.members.length}
+                  </span>
                 </div>
 
                 <div className="flex justify-between items-center mt-3 pt-3 border-t">
                   <span className="text-sm text-muted-foreground">Total expenses</span>
                   <span className="font-medium">
-                    {formatCurrency(group.totalExpenses)}
+                    {/* {formatCurrency(group.totalExpenses)} */}0
                   </span>
                 </div>
               </Card>
@@ -188,8 +226,65 @@ export const GroupsList = () => {
                 Create Group
               </Button>
             </DialogTrigger>
-            <DialogContent>
-              {/* Dialog content will be the same as above */}
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Create a new group</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="groupName">Group Name</Label>
+                  <Input
+                    id="groupName"
+                    value={groupName}
+                    onChange={(e) => setGroupName(e.target.value)}
+                    placeholder="e.g., Weekend Trip"
+                    className="focus-ring"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Input
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Description of group"
+                    className="focus-ring"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Invite Members</Label>
+                  {members.map((member, index) => (
+                    <div key={member.id} className="flex items-center gap-2">
+                      <Input
+                        type="email"
+                        value={member.email}
+                        onChange={(e) => updateMember(member.id, e.target.value)}
+                        placeholder="Enter email address"
+                        className="focus-ring"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeMember(member.id)}
+                        className="flex-shrink-0 text-muted-foreground hover:text-destructive"
+                        disabled={members.length <= 1}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" onClick={addMember} className="w-full mt-2">
+                    Add Another Member
+                  </Button>
+                </div>
+
+                <Button onClick={handleCreateGroup} className="w-full">
+                  Create Group
+                </Button>
+              </div>
             </DialogContent>
           </Dialog>
         </div>
