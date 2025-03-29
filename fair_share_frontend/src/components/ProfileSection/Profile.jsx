@@ -12,9 +12,15 @@ const ProfileSection = () => {
   const profileRef = useRef(null);
   const navigate = useNavigate();
 
-  const handleSignOut = () => {
-    localStorage.removeItem('loginData');
-    navigate("/");
+const handleSignOut = () => {
+    console.log("Signing out..."); // Debugging log
+
+    localStorage.removeItem('loginData'); 
+    console.log("User data removed from local storage."); // Debugging log
+
+    navigate("/"); 
+    console.log("Redirecting to home page..."); // Debugging log
+
   };
 
 
