@@ -1,22 +1,22 @@
 import { useState, useEffect } from "react";
-import { useAppContext } from "@/context/AppContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeftRight, Check, Clock } from "lucide-react";
 import { formatCurrency } from "@/lib/formatCurrency";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
-import { loggedData } from "../../lib/config";
+import { loggedData, RAZORPAY_KEY_ID, ToastProperty } from "../../lib/config";
 import { getAllExpense } from "../../api/expenseApi";
+import { createPayment, verifyPayment } from "../../api/paymentApi";
 
 export const SettlementList = () => {
   const [expenses, setExpenses] = useState([])
   const loginUser = loggedData(); // Logged-in user
   const [activeTab, setActiveTab] = useState("toPay");
   const [settlementData, setSettlementData] = useState([]);
+  const [amount, setamount] = useState(350);
 
   const getExpenses = async () => {
     const response = await getAllExpense(loginUser.token);
@@ -80,15 +80,48 @@ export const SettlementList = () => {
   const toReceive = settlementData.filter((s) => s.status === "pending" && s.to === "You");
   const paid = settlementData.filter((s) => s.status === "paid");
 
-  const handlePaySettlement = (settlementId) => {
+  const handlePaymentVerify = async (data) => {
+    console.log("first", data);
+    const options = {
+      key: RAZORPAY_KEY_ID,
+      amount: data.amount,
+      currency: data.currency,
+      name: "FairShare",
+      description: "Test Mode",
+      order_id: data.id,
+      handler: async (response) => {
+        console.log("response ==>", response)
+        try {
+          const res = await verifyPayment(loginUser.token,
+            {
+              orderId: response.razorpay_order_id,
+              paymentId: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
+            }
+          )
 
-    setSettlementData((prevData) =>
-      prevData.map((item) =>
-        item.id === settlementId ? { ...item, status: "paid" } : item
-      )
-    );
-    toast.success("Payment marked as completed!"); 
-  };
+          if (res.success) {
+            toast.success(res.message, ToastProperty)
+          }
+        } catch (error) {
+          console.log("Error in handlePaymentVerify ==>", error);
+        }
+      },
+    };
+    const rzp1 = new window.Razorpay(options);
+    rzp1.open();
+  }
+
+  const handlePayment = async (settlement) => {
+    try {
+      const res = await createPayment(loginUser.token, settlement.id, { amount: settlement.amount });
+      if (res.success) {
+        handlePaymentVerify(res.data)
+      }
+    } catch (error) {
+      console.log("Error in createPayment ==>", error);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -131,8 +164,8 @@ export const SettlementList = () => {
                   </div>
 
                   <div className="mt-4 pt-4 border-t flex justify-end">
-                    <Button onClick={() => handlePaySettlement(settlement.id)} className="gap-1">
-                      <Check className="h-4 w-4" /> Mark as Paid
+                    <Button onClick={() => handlePayment(settlement)} className="gap-1">
+                      <Check className="h-4 w-4" /> Pay
                     </Button>
                   </div>
                 </Card>

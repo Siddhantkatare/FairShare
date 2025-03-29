@@ -20,7 +20,7 @@ const groupSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    participants: [
+    members: [
         {
             email: {
                 type: String,

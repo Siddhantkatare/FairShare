@@ -55,7 +55,7 @@ export const AppLayout = ({ children }) => {
               <MenuIcon className="h-5 w-5" />
             )}
           </Button>
-          <Link to="/home"><h1 className="text-xl font-medium">FairShare</h1></Link>
+          <Link to="/"><h1 className="text-xl font-medium">FairShare</h1></Link>
         </header>
 
         <main className="flex-1 p-4 sm:p-6">
