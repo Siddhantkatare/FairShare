@@ -51,3 +51,53 @@ export const getAllGroups = async (token) => {
         }
     }
 }
+
+export const getGroupById = async (token, id) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/group/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        return response.data
+    } catch (error) {
+        console.log("Error in getGroupById", error)
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                console.log("Error in getGroupById", error)
+                toast.error(error.response.data.message, ToastProperty)
+            } else {
+                console.log("Error in getGroupById", error)
+                toast.error("Please try again later.", ToastProperty)
+            }
+        } else {
+            console.log("Error in getGroupById", error)
+            toast.error("Please try again later.", ToastProperty)
+        }
+    }
+}
+
+export const sendMessage = async (token, id, data) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/group/${id}`, data, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        return response.data
+    } catch (error) {
+        console.log("Error in sendMessage", error)
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                console.log("Error in sendMessage", error)
+                toast.error(error.response.data.message, ToastProperty)
+            } else {
+                console.log("Error in sendMessage", error)
+                toast.error("Please try again later.", ToastProperty)
+            }
+        } else {
+            console.log("Error in sendMessage", error)
+            toast.error("Please try again later.", ToastProperty)
+        }
+    }
+}

@@ -2,7 +2,7 @@ import express from 'express';
 import { authJWT, loginController, signUpController } from '../controller/authController.js';
 import { getProfileController, updateProfileController } from '../controller/userController.js';
 import { addExpenseController, getAllExpenseController, getExpenseByIdController, updateExpenseController } from '../controller/expenseController.js';
-import { addGroupController, getAllGroupController, getGroupByIdController, updateGroupController } from '../controller/groupController.js';
+import { addGroupController, getAllGroupController, getGroupByIdController, pushMessgeToGroupController, updateGroupController } from '../controller/groupController.js';
 import { createPaymentController, verifyPaymentController } from '../controller/paymentController.js';
 const router = express.Router();
 
@@ -23,6 +23,8 @@ router.post('/group', addGroupController)
 router.put('/group/:id', updateGroupController)
 router.get('/group', getAllGroupController)
 router.get('/group/:id', getGroupByIdController)
+router.get('/group/:id', getGroupByIdController)
+router.post('/group/:id', pushMessgeToGroupController)
 
 router.post('/payment/order/:id', createPaymentController)
 router.post('/payment/verify', verifyPaymentController)

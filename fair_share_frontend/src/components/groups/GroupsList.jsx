@@ -170,7 +170,9 @@ export const GroupsList = () => {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence>
-          {groups.map((group, index) => (
+          {groups && groups.filter(g =>
+            g.members.some(member => member.email === loginData.email)
+          ).map((group, index) => (
             <motion.div
               key={group.id}
               initial={{ opacity: 0, y: 20 }}
@@ -213,82 +215,84 @@ export const GroupsList = () => {
         </AnimatePresence>
       </div>
 
-      {groups.length === 0 && (
-        <div className="text-center py-12 border rounded-lg bg-background">
-          <h3 className="text-lg font-medium mb-2">No groups yet</h3>
-          <p className="text-muted-foreground mb-6">
-            Create a group to start splitting expenses with friends
-          </p>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="gap-1">
-                <PlusIcon className="h-4 w-4" />
-                Create Group
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Create a new group</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="groupName">Group Name</Label>
-                  <Input
-                    id="groupName"
-                    value={groupName}
-                    onChange={(e) => setGroupName(e.target.value)}
-                    placeholder="e.g., Weekend Trip"
-                    className="focus-ring"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Input
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Description of group"
-                    className="focus-ring"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Invite Members</Label>
-                  {members.map((member, index) => (
-                    <div key={member.id} className="flex items-center gap-2">
-                      <Input
-                        type="email"
-                        value={member.email}
-                        onChange={(e) => updateMember(member.id, e.target.value)}
-                        placeholder="Enter email address"
-                        className="focus-ring"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeMember(member.id)}
-                        className="flex-shrink-0 text-muted-foreground hover:text-destructive"
-                        disabled={members.length <= 1}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button type="button" variant="outline" onClick={addMember} className="w-full mt-2">
-                    Add Another Member
-                  </Button>
-                </div>
-
-                <Button onClick={handleCreateGroup} className="w-full">
+      {groups && groups.filter(g =>
+        g.members.some(member => member.email === loginData.email)
+      ).length === 0 && (
+          <div className="text-center py-12 border rounded-lg bg-background">
+            <h3 className="text-lg font-medium mb-2">No groups yet</h3>
+            <p className="text-muted-foreground mb-6">
+              Create a group to start splitting expenses with friends
+            </p>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-1">
+                  <PlusIcon className="h-4 w-4" />
                   Create Group
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-      )}
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Create a new group</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="groupName">Group Name</Label>
+                    <Input
+                      id="groupName"
+                      value={groupName}
+                      onChange={(e) => setGroupName(e.target.value)}
+                      placeholder="e.g., Weekend Trip"
+                      className="focus-ring"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Input
+                      id="description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Description of group"
+                      className="focus-ring"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Invite Members</Label>
+                    {members.map((member, index) => (
+                      <div key={member.id} className="flex items-center gap-2">
+                        <Input
+                          type="email"
+                          value={member.email}
+                          onChange={(e) => updateMember(member.id, e.target.value)}
+                          placeholder="Enter email address"
+                          className="focus-ring"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeMember(member.id)}
+                          className="flex-shrink-0 text-muted-foreground hover:text-destructive"
+                          disabled={members.length <= 1}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button type="button" variant="outline" onClick={addMember} className="w-full mt-2">
+                      Add Another Member
+                    </Button>
+                  </div>
+
+                  <Button onClick={handleCreateGroup} className="w-full">
+                    Create Group
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
     </div>
   );
 };

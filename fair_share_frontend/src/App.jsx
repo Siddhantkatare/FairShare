@@ -13,6 +13,7 @@ import { ToastContainer } from "react-toastify";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Home from "./pages/Home";
 import About from "./pages/About";
+import GroupDetail from "./pages/GroupDetail";
 
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -32,6 +33,7 @@ const AnimatedRoutes = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/groups" element={<Groups />} />
+          <Route path="/groups/:id" element={<GroupDetail />} />
           <Route path="/add-expense" element={<AddExpenseForm />} />
           <Route path="/settle" element={<Settle />} />
           <Route path="*" element={<NotFound />} />

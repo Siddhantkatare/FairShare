@@ -19,13 +19,13 @@ export const Sidebar = ({ onClose }) => {
   const logOut = () => {
     localStorage.removeItem('loginData');
     toast.success('Logged out successfully', ToastProperty);
-    navigate('/home');
+    navigate('/');
   }
 
   return (
     <div className="h-full w-64 bg-card border-r flex flex-col overflow-hidden">
       <div className="p-6 border-b flex justify-between items-center">
-        <Link to="/home"> <h2 className="text-2xl font-medium flex items-center">
+        <Link to="/"> <h2 className="text-2xl font-medium flex items-center">
           <span className="bg-primary text-primary-foreground p-1 rounded mr-2 text-sm">FS</span>
           FairShare
         </h2></Link>

@@ -27,7 +27,7 @@ const ProtectedRoute = () => {
             setLoginData(null);
             setIsAuthenticated(false);
             // Navigate with state to show login modal
-            navigate('/home', {
+            navigate('/', {
                 state: { showLogin: true },
                 replace: true
             });
@@ -37,7 +37,7 @@ const ProtectedRoute = () => {
     }, [navigate]);
 
     if (isAuthenticated === null) return <div>Loading...</div>;
-    if (!isAuthenticated) return <Navigate to="/home" state={{ showLogin: true }} replace />;
+    if (!isAuthenticated) return <Navigate to="/" state={{ showLogin: true }} replace />;
 
     return <Outlet />;
 };
