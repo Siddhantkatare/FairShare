@@ -61,7 +61,7 @@ export const Sidebar = ({ onClose }) => {
                     {isActive && (
                       <motion.div
                         layoutId="sidebar-active-indicator"
-                        className="absolute right-3 w-1.5 h-1.5 rounded-full bg-primary"
+                        
                       />
                     )}
                   </motion.div>
