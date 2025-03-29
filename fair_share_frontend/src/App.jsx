@@ -21,7 +21,7 @@ const LoadingSpinner = () => (
 );
 
 const AnimatedRoutes = () => {
-  const location = useLocation(); // Ensure each route has a unique key
+  const location = useLocation();
 
   return (
     <AnimatePresence mode="wait">
