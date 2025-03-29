@@ -34,7 +34,7 @@ export const ExpensesOverview = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-semibold">Welcome, {loginData.name || loginData.email}</h1>
+      <h1 className="text-3xl font-semibold">Welcome, {loginData.name || loginData.email || "N/A"}</h1>
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Recent Expenses</h2>
         <div className="flex gap-2">

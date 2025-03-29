@@ -10,14 +10,14 @@ const ProfileSection = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const profileRef = useRef(null);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const handleSignOut = () => {
     localStorage.removeItem('loginData');
-    navigate("/"); 
+    navigate("/");
   };
 
- 
+
   const [userData, setUserData] = useState(null); // State for user data
 
   useEffect(() => {
@@ -39,24 +39,24 @@ const ProfileSection = () => {
 
   const handlePasswordChange = (e) => {
     e.preventDefault();
-    
+
     if (newPassword !== confirmPassword) {
       setMessage("New passwords don't match");
       return;
     }
-    
+
     if (newPassword.length < 8) {
       setMessage("Password must be at least 8 characters");
       return;
     }
-    
+
     // API call would go here
     console.log('Password change requested');
     setMessage("Password changed successfully!");
     setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
-    
+
     setTimeout(() => setMessage(''), 3000);
   };
 
@@ -76,24 +76,24 @@ const ProfileSection = () => {
   return (
     <div className="relative" ref={profileRef}>
       {/* Profile Icon Button */}
-      <button 
+      <button
         onClick={toggleProfile}
         className="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-400 bg-gray-200 hover:bg-gray-300 transition duration-200"
         aria-expanded={isOpen}
         aria-label="User profile"
       >
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          className="h-8 w-8 text-gray-800" 
-          fill="none" 
-          viewBox="0 0 24 24" 
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-8 w-8 text-gray-800"
+          fill="none"
+          viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={2} 
-            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
           />
         </svg>
       </button>
@@ -104,24 +104,24 @@ const ProfileSection = () => {
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center space-x-3">
               <div className="bg-gray-800 text-white rounded-full p-3">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-6 w-6" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                   />
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{userData ? userData.name : 'Loading...'}</h3>
-                <p className="text-sm text-gray-600">{userData ? userData.email : 'Loading...'}</p>
+                <h3 className="text-lg font-semibold text-gray-900">{userData ? userData.name : 'John Doe'}</h3>
+                <p className="text-sm text-gray-600">{userData ? userData.email : 'John@gmail.com'}</p>
 
               </div>
             </div>
@@ -130,21 +130,21 @@ const ProfileSection = () => {
           <div className="p-4 border-b border-gray-200">
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-5 w-5 text-gray-600" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-gray-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                   />
                 </svg>
-                <span className="text-gray-700">{userData ? userData.phone : 'Loading...'}</span>
+                <span className="text-gray-700">{userData ? userData.phone : '123456789'}</span>
 
               </div>
             </div>
