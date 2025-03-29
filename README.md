@@ -43,7 +43,7 @@ To set up the FareShare web app locally, follow these steps:
 
 ### 1. Clone the Repository:
 ```bash
-git clone https://github.com/yourusername/fairshare.git
+git clone https://github.com/Siddhantkatare/FairShare
 cd fairshare
 ```
 
