@@ -48,12 +48,10 @@ export const verifyPaymentController = async (request, response) => {
         console.log("request.body ==>", request.body);
 
         const sign = orderId + "|" + paymentId;
-        console.log("sign ==>", sign);
 
         const expectedSign = crypto.createHmac("sha256", RAZORPAY_SECRET)
             .update(sign.toString())
             .digest("hex");
-        console.log("expectedSign ==>", expectedSign);
 
         const isAuthentic = expectedSign === signature;
         console.log("isAuthentic ==>", isAuthentic);

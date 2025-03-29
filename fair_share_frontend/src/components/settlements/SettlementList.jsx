@@ -47,6 +47,7 @@ export const SettlementList = () => {
           // If the logged-in user paid, they should receive money from unpaid participants.
           if (isLoggedUserPayer && !participant.paid) {
             settlements.push({
+              expenseId: expense.id,
               id: `${expense.id}-${participant.email}`,
               description: expense.description,
               amount: participant.share,
@@ -60,6 +61,7 @@ export const SettlementList = () => {
           // If the logged-in user is a participant who hasn't paid yet, they need to pay.
           if (isLoggedUserParticipant && !participant.paid) {
             settlements.push({
+              expenseId: expense.id,
               id: `${expense.id}-${participant.email}`,
               description: expense.description,
               amount: participant.share,
@@ -81,7 +83,7 @@ export const SettlementList = () => {
   const paid = settlementData.filter((s) => s.status === "paid");
 
   const handlePaymentVerify = async (data) => {
-    console.log("first", data);
+    // console.log("first", data);
     const options = {
       key: RAZORPAY_KEY_ID,
       amount: data.amount,
@@ -99,7 +101,7 @@ export const SettlementList = () => {
               signature: response.razorpay_signature,
             }
           )
-
+          console.log("res ==>", res)
           if (res.success) {
             toast.success(res.message, ToastProperty)
           }
@@ -114,7 +116,7 @@ export const SettlementList = () => {
 
   const handlePayment = async (settlement) => {
     try {
-      const res = await createPayment(loginUser.token, settlement.id, { amount: settlement.amount });
+      const res = await createPayment(loginUser.token, settlement.id, settlement);
       if (res.success) {
         handlePaymentVerify(res.data)
       }
